@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans:beans xmlns="http://www.springframework.org/schema/security"
+	xmlns:beans="http://www.springframework.org/schema/beans" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.2.xsd
+                        http://www.springframework.org/schema/security http://www.springframework.org/schema/security/spring-security-3.2.xsd">
+
+	<http pattern="/resource/**" security="none" />
+	<http pattern="/captchaServlet" security="none" />
+	<http pattern="/user/getLoginFailCount.do" security="none" />
+
+	<http authentication-manager-ref="authenticationManager" use-expressions="true">
+		<intercept-url pattern="/login.jsp" access="permitAll" />
+		<intercept-url pattern="/**" access="hasRole('ROLE_ADMIN')" />
+		<form-login login-page="/login.jsp" authentication-failure-handler-ref="shieldUrlAuthenticationFailureHandler"
+			authentication-success-handler-ref="shieldUrlAuthenticationSuccessHandler" default-target-url="/index.do" />
+		<logout logout-success-url="/login.jsp" />
+		<custom-filter ref="shieldUsernamePasswordAuthenticationFilter" before="FORM_LOGIN_FILTER"/>
+		<csrf />
+	</http>
+
+	<!-- <http entry-point-ref="authenticationEntryPoint">
+	    <session-management invalid-session-url="/login.jsp" />
+	    <custom-filter ref="shieldUsernamePasswordAuthenticationFilter" position="FORM_LOGIN_FILTER"/>
+	</http>
+	
+	<beans:bean id="authenticationEntryPoint" class="org.springframework.security.web.authentication.LoginUrlAuthenticationEntryPoint">
+    	<beans:property name="loginFormUrl" value="/login.jsp" />
+	</beans:bean> -->
+	
+	<beans:bean id="shieldUsernamePasswordAuthenticationFilter" class="com.iflytek.fsp.shield.manager.security.filter.ShieldUsernamePasswordAuthenticationFilter">
+    	<beans:property name="filterProcessesUrl" value="/j_spring_security_check" />
+    	<beans:property name="authenticationSuccessHandler" ref="shieldUrlAuthenticationSuccessHandler" />
+    	<beans:property name="authenticationFailureHandler" ref="shieldUrlAuthenticationFailureHandler" />
+    	<beans:property name="authenticationManager" ref="authenticationManager" />
+	</beans:bean>
+
+	<authentication-manager alias="authenticationManager">
+		<authentication-provider user-service-ref="userDetailService">
+			<password-encoder hash="md5" />
+		</authentication-provider>
+	</authentication-manager>
+
+	<beans:bean id="userDetailService" class="com.iflytek.fsp.shield.manager.service.impl.UserServiceImpl" />
+	
+	<beans:bean id="shieldUrlAuthenticationFailureHandler" class="com.iflytek.fsp.shield.manager.security.handler.ShieldUrlAuthenticationFailureHandler" />
+	<beans:bean id="shieldUrlAuthenticationSuccessHandler" class="com.iflytek.fsp.shield.manager.security.handler.ShieldUrlAuthenticationSuccessHandler" />
+</beans:beans>
