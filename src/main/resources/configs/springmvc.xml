@@ -20,24 +20,24 @@
 	</bean>
 	
 	<!-- 对web包中的所有类进行扫描，以完成bean的创建和自动依赖注入功能 -->
-	<context:component-scan base-package="com.aldis.inventory.web" />
+	<context:component-scan base-package="com.aldis.inventory.api" />
 
 	
-	<mvc:annotation-driven>
-		<mvc:message-converters register-defaults="true">
-			<bean class="org.springframework.http.converter.json.MappingJacksonHttpMessageConverter">
-				<property name="objectMapper">
-					<bean class="org.springframework.http.converter.json.JacksonObjectMapperFactoryBean">
-						<property name="featuresToDisable">
-							<array>
-								<util:constant static-field="org.codehaus.jackson.map.DeserializationConfig.Feature.FAIL_ON_UNKNOWN_PROPERTIES" />
-							</array>
-						</property>
-					</bean>
-				</property>
-			</bean>
-  		</mvc:message-converters>
-	</mvc:annotation-driven>
+    <mvc:annotation-driven>
+        <mvc:message-converters register-defaults="true">
+            <bean class="org.springframework.http.converter.json.MappingJackson2HttpMessageConverter">
+                <property name="objectMapper">
+                    <bean class="org.springframework.http.converter.json.Jackson2ObjectMapperFactoryBean">
+                        <property name="featuresToDisable">
+                            <array>
+                                <util:constant static-field="com.fasterxml.jackson.databind.DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES" />
+                            </array>
+                        </property>
+                    </bean>
+                </property>
+            </bean>
+        </mvc:message-converters>
+    </mvc:annotation-driven>
 	
 	<!-- 对模型视图的名称的解析 -->
 	<bean
